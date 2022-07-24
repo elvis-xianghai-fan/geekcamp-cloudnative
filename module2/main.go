@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -12,7 +11,7 @@ const noContent = 204
 const ok = 200
 
 func main() {
-	fmt.Println("This is a test HTTP server.")
+	log.Println("This is a test HTTP server.")
 	os.Setenv("VERSION", "1.0")
 
 	http.HandleFunc("/", defaultHandler)
@@ -22,7 +21,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,15 +40,7 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {
-	for k, vs := range r.Header {
-		log.Printf("%s = %s", k, vs)
-		for _, v := range vs {
-			w.Header().Add(k, v)
-		}
-	}
-
 	io.WriteString(w, "ok")
-	w.Header().Set("VERSION", os.Getenv("VERSION"))
 	w.WriteHeader(ok)
 }
 
