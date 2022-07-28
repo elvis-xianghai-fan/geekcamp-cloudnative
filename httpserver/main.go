@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,14 +18,14 @@ func main() {
 	http.HandleFunc("/", defaultHandler)
 	http.HandleFunc("/healthz", healthz)
 
-	err := http.ListenAndServe(":80", nil)
+	err := http.ListenAndServe(getListeningAddr(), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Client IP: %s", GetIP(r))
+	log.Printf("Client IP: %s", getIP(r))
 
 	for k, vs := range r.Header {
 		log.Printf("%s = %s", k, vs)
@@ -44,10 +45,18 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(ok)
 }
 
-func GetIP(r *http.Request) string {
+func getIP(r *http.Request) string {
 	forwarded := r.Header.Get("X-FORWARDED-FOR")
 	if forwarded != "" {
 		return forwarded
 	}
 	return r.RemoteAddr
+}
+
+func getListeningAddr() string {
+	servicePort := os.Getenv("SERVICE_PORT")
+	if len(servicePort) == 0 {
+		servicePort = "80"
+	}
+	return fmt.Sprintf(":%s", servicePort)
 }
