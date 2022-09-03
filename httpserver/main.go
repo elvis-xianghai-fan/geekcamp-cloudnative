@@ -50,7 +50,7 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 }
 
 func finalize(w http.ResponseWriter, r *http.Request) {
-	log.Println("Terminating...")
+	log.Println("Shutting down ...")
 	time.Sleep(5 * time.Second)
 	io.WriteString(w, "ok")
 	w.WriteHeader(ok)
@@ -76,6 +76,7 @@ func isVerbose() bool {
 	v := os.Getenv("VERBOSE")
 	switch v {
 	case "true", "True", "Y", "y", "1":
+		log.Println("Verbose logging ...")
 		return true
 	default:
 		return false
