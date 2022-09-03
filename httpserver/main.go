@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const noContent = 204
@@ -17,6 +18,7 @@ func main() {
 
 	http.HandleFunc("/", defaultHandler)
 	http.HandleFunc("/healthz", healthz)
+	http.HandleFunc("/finalize", finalize)
 
 	err := http.ListenAndServe(getListeningAddr(), nil)
 	if err != nil {
@@ -28,7 +30,9 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Client IP: %s", getIP(r))
 
 	for k, vs := range r.Header {
-		log.Printf("%s = %s", k, vs)
+		if isVerbose() {
+			log.Printf("%s = %s", k, vs)
+		}
 		for _, v := range vs {
 			w.Header().Add(k, v)
 		}
@@ -41,6 +45,13 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "ok")
+	w.WriteHeader(ok)
+}
+
+func finalize(w http.ResponseWriter, r *http.Request) {
+	log.Println("Terminating...")
+	time.Sleep(5 * time.Second)
 	io.WriteString(w, "ok")
 	w.WriteHeader(ok)
 }
@@ -59,4 +70,14 @@ func getListeningAddr() string {
 		servicePort = "80"
 	}
 	return fmt.Sprintf(":%s", servicePort)
+}
+
+func isVerbose() bool {
+	v := os.Getenv("VERBOSE")
+	switch v {
+	case "true", "True", "Y", "y", "1":
+		return true
+	default:
+		return false
+	}
 }
