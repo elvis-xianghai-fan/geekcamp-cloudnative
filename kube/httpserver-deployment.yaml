@@ -39,7 +39,7 @@ spec:
             path: /healthz
             port: 8080
           periodSeconds: 5
-        image: elvfan/httpserver:0.1
+        image: elvfan/httpserver:0.3
         resources:
           limits:
             cpu: "200m"
